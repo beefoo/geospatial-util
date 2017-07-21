@@ -4,8 +4,6 @@
 
 import argparse
 import h5py
-import numpy as np
-from pprint import pprint
 
 # input
 parser = argparse.ArgumentParser()

@@ -1,2 +1,4 @@
 *.hdf
 *.h5
+output/*
+!output/.keep

@@ -22,7 +22,7 @@ for root, dirs, files in os.walk(args.DIR):
             # h5 file not found, create it
             if not os.path.isfile(h5):
                 print "Converting %s" % f
-                command = ['h4toh5', h4]
+                command = ['./h4toh5', h4]
                 subprocess.call(command)
 
 print "Done."
