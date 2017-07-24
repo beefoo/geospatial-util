@@ -1,4 +1,5 @@
 *.hdf
 *.h5
+*.gz
 output/*
 !output/.keep
