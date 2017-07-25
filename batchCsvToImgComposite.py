@@ -24,36 +24,42 @@ for v in argValues:
     parser.add_argument(v[0], dest=v[1], default=v[2], help=v[3])
 parser.add_argument('-dirs', dest="INPUT_DIRS", default="data/land_surface_temperature,data/sea_surface_temperature", help="Input directories")
 parser.add_argument('-patterns', dest="FILE_PATTERNS", default="MOD11C1_E_LSTDA_([0-9\-]+)\.CSV\.gz,MYD28W_([0-9\-]+)\.CSV\.gz", help="Input file patterns")
-parser.add_argument('-out', dest="OUTPUT_FILE", default="output/land_sea_surface_temperature/*.png", help="Output file")
+parser.add_argument('-out', dest="OUTPUT_FILE", default="output/land_sea_surface_temperature/frame*.png", help="Output file")
 args = parser.parse_args()
 argv = vars(args)
 
 INPUT_DIRS = args.INPUT_DIRS.split(",")
 FILE_PATTERNS = [re.compile(p) for p in args.FILE_PATTERNS.split(",")]
 
-INPUT_DIR_FILES = [os.listdir(d) for d in INPUT_DIRS]
+INPUT_DIR_FILES = [os.listdir(d)for d in INPUT_DIRS]
 
-matches = {}
+matches = []
 for i, files in enumerate(INPUT_DIR_FILES):
+    matchIndex = 0
     for f in files:
         m = FILE_PATTERNS[i].match(f)
         if m:
             match = m.group(1)
             inFilename = os.path.join(INPUT_DIRS[i], f)
-            if match not in matches:
-                matches[match] = [inFilename]
+
+            if i <= 0:
+                matches.append([inFilename])
+            elif matchIndex >= len(matches):
+                print "Mismatch in number of files!"
+                sys.exit(1)
             else:
-                matches[match].append(inFilename)
+                matches[matchIndex].append(inFilename)
+                matchIndex += 1
 
-for match in matches:
-    inFilenames = matches[match]
+if len(matches[-1]) < len(INPUT_DIRS):
+    print "Mismatch in number of files!"
+    sys.exit(1)
 
-    if len(inFilenames) < len(INPUT_DIRS):
-        print "Missing frame from %s" % match
-        continue
+for i, inFilenames in enumerate(matches):
 
     inFilename = ",".join(inFilenames)
-    outFilename = args.OUTPUT_FILE.replace("*", match)
+    filename = str(i+1).zfill(len(str(len(matches)))+1)
+    outFilename = args.OUTPUT_FILE.replace("*", filename)
 
     command = ['python', 'csvToImgComposite.py']
 
