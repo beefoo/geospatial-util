@@ -60,7 +60,7 @@ def norm(value, a, b):
     return n
 
 # Convert colors to RGB
-GRADIENT = [hex2rgb(g) for g in GRADIENT]
+GRADIENT = [hex2rgb(g.strip()) for g in GRADIENT]
 emptyColor = hex2rgb(args.DEFAULT_COLOR)
 
 rows = []
