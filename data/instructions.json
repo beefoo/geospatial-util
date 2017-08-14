@@ -6,6 +6,7 @@
       "data/land_surface_temperature/MOD11C1_E_LSTDA_([0-9\\-]+)\\.CSV\\.gz",
       "data/sea_surface_temperature/MYD28W_([0-9\\-]+)\\.CSV\\.gz"
     ],
+    "command": "csvToImgComposite.py",
     "out": "output/land_sea_surface_temperature/frame*.png",
     "options": {
       "resizeW": "2048",
@@ -20,12 +21,27 @@
       "data/vegetation_index_m/MOD13A2_M_NDVI_(2015[0-9\\-]+)\\.CSV\\.gz",
       "data/vegetation_index/MOD13A2_E_NDVI_(2015[0-9\\-]+)\\.CSV\\.gz"
     ],
+    "command": "csvToImgComposite.py",
     "out": "output/vegetation_index/frame*.png",
     "options": {
       "resizeW": "2048",
       "range": " -0.1:0.9,-0.1:0.9",
       "fill": "99999.0",
       "grad": "#ece0d7,#8b8c35,#132d02",
+      "dc": "#000000"
+    }
+  },
+  "snow_cover_vegetation_index": {
+    "in": [
+      "img/vegetation_index_m/MOD13A2_M_NDVI_(2015[0-9\\-]+)\\.PNG",
+      "img/vegetation_index_e/MOD13A2_E_NDVI_(2015[0-9\\-]+)\\.PNG",
+      "img/snow_cover_m/MOD10C1_M_SNOW_(2015[0-9\\-]+)\\.PNG",
+      "img/snow_cover_e/MOD10C1_E_SNOW_(2015[0-9\\-]+)\\.PNG"
+    ],
+    "command": "pngToImgComposite.py",
+    "out": "output/snow_cover_vegetation_index/frame*.png",
+    "options": {
+      "resizeW": "2048",
       "dc": "#000000"
     }
   }

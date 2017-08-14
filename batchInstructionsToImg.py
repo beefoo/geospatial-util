@@ -79,7 +79,7 @@ for key in data:
             filename = str(i+1).zfill(len(str(targetLen))+1)
             outFilename = entry["out"].replace("*", filename)
 
-            command = ['python', 'csvToImgComposite.py']
+            command = ['python', entry["command"]]
 
             for key in entry["options"]:
                 command.append("-"+key)
