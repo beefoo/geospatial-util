@@ -18,12 +18,14 @@ parser.add_argument('-unit', dest="UNIT", default="Celsius", help="Unit")
 parser.add_argument('-scale', dest="SCALING_FACTOR", default=1.0, type=float, help="Data scaling factor")
 parser.add_argument('-fill', dest="FILL_VALUE", default=99999.0, type=float, help="Fill value")
 parser.add_argument('-resize', dest="RESIZE", default=1.0, type=float, help="Resize to")
+parser.add_argument('-resizeW', dest="RESIZE_TO_WIDTH", default=0, type=int, help="Resize to width")
 parser.add_argument('-out', dest="OUTPUT_FILE", default="output/land_sea_surface_temperature/2016-01-01.png", help="Output file")
 args = parser.parse_args()
 
 INPUT_FILES = args.INPUT_FILES.split(",")
 GRADIENT = args.GRADIENT.split(",")
 RESIZE = args.RESIZE
+RESIZE_TO_WIDTH = args.RESIZE_TO_WIDTH
 
 # parse ranges
 DATA_RANGES = args.DATA_RANGES.split(",")
@@ -84,6 +86,8 @@ for index, filename in enumerate(INPUT_FILES):
     if im is None:
         height = len(rows)
         width = len(rows[0])
+        if RESIZE_TO_WIDTH > 0:
+            RESIZE = 1.0 * RESIZE_TO_WIDTH / width
         if RESIZE != 1.0:
             height = int(round(RESIZE * height))
             width = int(round(RESIZE * width))
