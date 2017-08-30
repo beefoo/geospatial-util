@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 # python h5ToImg.py -resize 0.2
+# python h5ToImg.py -in data/co2_m/AIRS.2015.03.01.L3.CO2Std_IR031.v5.9.14.0.IRonly.X15098105512.h5 -dataset "CO2,Data Fields,mole_fraction_of_carbon_dioxide_in_free_troposphere" -out output/co2_march.png -range "0.00039,0.00041" -grad "#212121,#212121,#3c253f,#c13838,#ff8484"
 
 import argparse
 import h5py
+import math
 from PIL import Image
 from pprint import pprint
 import sys
@@ -15,16 +17,18 @@ parser.add_argument('-dataset', dest="DATASET", default="MODIS_8DAY_0.05DEG_CMG_
 parser.add_argument('-grad', dest="GRADIENT", default="#b2dcff,#7548c9,#212121,#7a3465,#ff3838", help="Color gradient")
 parser.add_argument('-dc', dest="DEFAULT_COLOR", default="#000000", help="Default color")
 parser.add_argument('-range', dest="DATA_RANGE", default="-20,40", help="Data range in celsius")
-parser.add_argument('-unit', dest="UNIT", default="Kelvin", help="Unit")
-parser.add_argument('-scale', dest="SCALING_FACTOR", default=0.02, type=float, help="Data scaling factor")
-parser.add_argument('-fill', dest="FILL_VALUE", default=0, type=int, help="Fill value")
+parser.add_argument('-unit', dest="UNIT", default="None", help="Unit")
+parser.add_argument('-scale', dest="SCALING_FACTOR", default=1.0, type=float, help="Data scaling factor")
+parser.add_argument('-fill', dest="FILL_VALUE", default=-9999, type=int, help="Fill value")
 parser.add_argument('-resize', dest="RESIZE", default=1.0, type=float, help="Resize to")
+parser.add_argument('-resizeW', dest="RESIZE_TO_WIDTH", default=0, type=int, help="Resize to width")
 parser.add_argument('-out', dest="OUTPUT_FILE", default="output/land_surface_temperature/2016001.png", help="Output file")
 args = parser.parse_args()
 
 DATASET_PATH = args.DATASET.split(",")
 GRADIENT = args.GRADIENT.split(",")
 RESIZE = args.RESIZE
+RESIZE_TO_WIDTH = args.RESIZE_TO_WIDTH
 RANGE = [float(d) for d in args.DATA_RANGE.split(",")]
 
 # apply scaling factor
@@ -81,6 +85,8 @@ with h5py.File(args.INPUT_FILE,'r') as f:
     height = len(dataset)
     width = len(dataset[0])
 
+    if RESIZE_TO_WIDTH > 0:
+        RESIZE = 1.0 * RESIZE_TO_WIDTH / width
     if RESIZE != 1.0:
         height = int(round(RESIZE * height))
         width = int(round(RESIZE * width))
@@ -96,7 +102,7 @@ with h5py.File(args.INPUT_FILE,'r') as f:
             i = y * width + x
             value = 0
             if RESIZE != 1.0:
-                value = dataset[int(round(y/RESIZE)), int(round(x/RESIZE))]
+                value = dataset[int(math.floor(y/RESIZE)), int(math.floor(x/RESIZE))]
             else:
                 value = dataset[y, x]
             color = emptyColor
