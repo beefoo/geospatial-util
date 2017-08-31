@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
 
-# python pngToJson.py -in "img/net_radiation_m/CERES_NETFLUX_M_2015-06.PNG" -key "net_radiation_june"
+# python h5ToJson.py -in "data/co2_m/AIRS.2015.06.01.L3.CO2Std_IR030.v5.9.14.0.IRonly.X15194072600.h5" -key "co2_june"
 
 import argparse
-import colorsys
+import h5py
 import json
 import math
 import os
-from PIL import Image
 from pprint import pprint
 import sys
 
 # input
 parser = argparse.ArgumentParser()
-parser.add_argument('-in', dest="INPUT_FILE", default="img/net_radiation_m/CERES_NETFLUX_M_2015-03.PNG", help="Input file")
-parser.add_argument('-hue', dest="HUE_GRADIENT", default="165,58,15", help="Hue gradient")
-parser.add_argument('-grad', dest="GRADIENT", default="#212121,#3d2d29,#593931,#ffe877", help="Color gradient")
+parser.add_argument('-in', dest="INPUT_FILE", default="data/co2_m/AIRS.2015.03.01.L3.CO2Std_IR031.v5.9.14.0.IRonly.X15098105512.h5", help="Input file")
+parser.add_argument('-dataset', dest="DATASET", default="CO2,Data Fields,mole_fraction_of_carbon_dioxide_in_free_troposphere", help="Dataset")
+parser.add_argument('-grad', dest="GRADIENT", default="#212121,#212121,#3c253f,#c13838,#ff8484", help="Color gradient")
 parser.add_argument('-degrees', dest="DEGREES", default=2.5, type=float, help="Resolution in degrees")
-parser.add_argument('-key', dest="KEY", default="net_radiation_march", help="Data key")
+parser.add_argument('-key', dest="KEY", default="co2_march", help="Data key")
+parser.add_argument('-range', dest="DATA_RANGE", default="0.00039,0.00041", help="Data range")
+parser.add_argument('-scale', dest="SCALING_FACTOR", default=1.0, type=float, help="Data scaling factor")
+parser.add_argument('-fill', dest="FILL_VALUE", default=-9999, type=int, help="Fill value")
 parser.add_argument('-threshold', dest="SIZE_THRESHOLD", default=0.3, type=float, help="Size threshold")
 parser.add_argument('-out', dest="OUTPUT_FILE", default="output/globe_data.json", help="Output file")
 args = parser.parse_args()
@@ -32,9 +34,10 @@ def rgb2hex(rgb):
   return "0x"+"".join(["0{0:x}".format(v) if v < 16 else "{0:x}".format(v) for v in rgb]).upper()
 
 INPUT_FILE = args.INPUT_FILE
+DATASET_PATH = args.DATASET.split(",")
 GRADIENT = [hex2rgb(g.strip()) for g in args.GRADIENT.strip().split(",")]
-HUE_GRADIENT = [float(g) for g in args.HUE_GRADIENT.strip().split(",")]
 DEGREES = args.DEGREES
+RANGE = [float(d) for d in args.DATA_RANGE.split(",")]
 KEY = args.KEY
 OUTPUT_FILE = args.OUTPUT_FILE
 
@@ -48,8 +51,8 @@ def mean(data):
 
 def norm(value, a, b):
     n = 1.0 * (value - a) / (b - a)
-    # n = min(n, 1)
-    # n = max(n, 0)
+    n = min(n, 1)
+    n = max(n, 0)
     return n
 
 def lerpColor(s, f, amount):
@@ -70,58 +73,43 @@ def getColor(grad, amount):
         rgb = grad[int(i)]
     return int(rgb2hex(rgb), 16)
 
-def getValue(grad, value):
-    step = 1.0 / (len(grad)-1)
-    returnValue = None
-
-    for i,g in enumerate(grad):
-        if i > 0:
-            v = norm(value, grad[i-1], g)
-            if 0 <= v <= 1:
-                returnValue = (i-1) * step + v * step
-                break
-
-    if returnValue is None:
-        g0 = grad[0]
-        g1 = grad[-1]
-        returnValue = 1
-        if g1 > g0:
-            if value < g0 or g0+(360-value) < value-g1:
-                returnValue = 0
-        else:
-            if not (value < g1 or g1+(360-value) < value-g0):
-                returnValue = 0
-
-    return returnValue
-
 width = int(360 / DEGREES)
 height = int(180 / DEGREES)
 total = width * height
 values = [[] for d in range(total)]
 
-im = Image.open(INPUT_FILE)
-imW, imH = im.size
-im = im.convert('HSV')
-pixels = im.load()
+dataset = None
 
-scaleW = 1.0 * imW / width
-scaleH = 1.0 * imH / height
+with h5py.File(args.INPUT_FILE,'r') as f:
+    for p in DATASET_PATH:
+        if dataset is None:
+            dataset = f[p]
+        else:
+            dataset = dataset[p]
 
-values = [[] for d in range(total)]
+    if not dataset:
+        print "Could not find dataset in file"
+        sys.exit(0)
 
-for y in range(height):
-    for x in range(width):
-        i = y * width + x
-        imX = int(x * scaleW)
-        imY = int(y * scaleH)
-        hsv = pixels[imX, imY]
-        hue = hsv[0]
-        value = getValue(HUE_GRADIENT, hue)
-        values[i].append(value)
+    dHeight = len(dataset)
+    dWidth = len(dataset[0])
 
-        sys.stdout.write('\r')
-        sys.stdout.write("%s%%" % round(1.0*i/total*100,1))
-        sys.stdout.flush()
+    scaleW = 1.0 * dWidth / width
+    scaleH = 1.0 * dHeight / height
+
+    for y in range(height):
+        for x in range(width):
+            i = y * width + x
+            dX = int(x * scaleW)
+            dY = int(y * scaleH)
+            value = dataset[dY, dX]
+            if value != args.FILL_VALUE:
+                n = norm(value, RANGE[0], RANGE[1])
+                values[i].append(n)
+
+            sys.stdout.write('\r')
+            sys.stdout.write("%s%%" % round(1.0*i/total*100,1))
+            sys.stdout.flush()
 
 # calculate colors
 jsonData = []

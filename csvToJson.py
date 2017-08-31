@@ -22,6 +22,7 @@ parser.add_argument('-scale', dest="SCALING_FACTOR", default=1.0, type=float, he
 parser.add_argument('-fill', dest="FILL_VALUE", default=99999.0, type=float, help="Fill value")
 parser.add_argument('-degrees', dest="DEGREES", default=2.5, type=float, help="Resolution in degrees")
 parser.add_argument('-key', dest="KEY", default="surface_temperature_march", help="Data key")
+parser.add_argument('-threshold', dest="SIZE_THRESHOLD", default=0.3, type=float, help="Size threshold")
 parser.add_argument('-out', dest="OUTPUT_FILE", default="output/globe_data.json", help="Output file")
 args = parser.parse_args()
 
@@ -131,9 +132,10 @@ for i, v in enumerate(values):
         # size = round(value, 2)
         size = value
         # adjust size based on latitude
-        adjust = (90-abs(lat)) / 90.0
-        size = round(size * adjust, 2)
-        jsonData += [lat, lon, size, color]
+        # adjust = (90-abs(lat)) / 90.0
+        # size = round(size * adjust, 2)
+        if size > args.SIZE_THRESHOLD:
+            jsonData += [lat, lon, size, color]
     sys.stdout.write('\r')
     sys.stdout.write("%s%%" % round(1.0*i/len(values)*100,1))
     sys.stdout.flush()
