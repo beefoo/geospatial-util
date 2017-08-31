@@ -148,4 +148,4 @@ jsonOut[KEY] = jsonData
 # Write to file
 with open(OUTPUT_FILE, 'w') as f:
     json.dump(jsonOut, f)
-    print "Wrote %s items to %s" % (len(jsonData)/3, OUTPUT_FILE)
+    print "Wrote %s items to %s" % (len(jsonData)/4, OUTPUT_FILE)
