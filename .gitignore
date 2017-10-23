@@ -6,3 +6,7 @@
 output/*
 !output/.keep
 *.act
+*.TIFF
+*.asc
+*.aux.xml
+*.prj
