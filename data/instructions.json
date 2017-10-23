@@ -4,7 +4,7 @@
       "data/land_surface_temperature_m/MOD11C1_M_LSTDA_([0-9\\-]+)\\.CSV\\.gz",
       "data/sea_surface_temperature_m/MYD28M_([0-9\\-]+)\\.CSV\\.gz",
       "data/land_surface_temperature/MOD11C1_E_LSTDA_([0-9\\-]+)\\.CSV\\.gz",
-      "data/sea_surface_temperature/MYD28W_([0-9\\-]+)\\.CSV\\.gz"
+      "data/sea_surface_temperature_e/MYD28W_([0-9\\-]+)\\.CSV\\.gz"
     ],
     "command": "csvToImgComposite.py",
     "out": "output/land_sea_surface_temperature/frame*.png",
@@ -31,6 +31,21 @@
       "dc": "#000000"
     }
   },
+  "sea_surface_temperature": {
+    "in": [
+      "data/sea_surface_temperature_m/MYD28M_([0-9\\-]+)\\.CSV\\.gz",
+      "data/sea_surface_temperature_e/MYD28W_([0-9\\-]+)\\.CSV\\.gz"
+    ],
+    "command": "csvToImgComposite.py",
+    "out": "output/sea_surface_temperature/frame*.png",
+    "options": {
+      "resizeW": "3600",
+      "range": " -20:40,-20:40,-20:40",
+      "fill": "99999.0",
+      "grad": "#190838,#190838,#190838,#190838,#190838,#1d004e,#322744,#322744,#622f63,#b63666,#f28956,#fcffac,#fcffac,#ffffff",
+      "dc": "#000000"
+    }
+  },
   "snow_cover_vegetation_index": {
     "in": [
       "img/vegetation_index_m/MOD13A2_M_NDVI_(2015[0-9\\-]+)\\.PNG",
@@ -42,6 +57,22 @@
     "out": "output/snow_cover_vegetation_index/frame*.png",
     "options": {
       "resizeW": "2048",
+      "dc": "#000000"
+    }
+  },
+  "water_vapor": {
+    "in": [
+      "data/water_vapor_m/MYDAL2_M_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz",
+      "data/water_vapor_e/MYDAL2_E_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz",
+      "data/water_vapor_d/MYDAL2_D_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz"
+    ],
+    "command": "csvToImgComposite.py",
+    "out": "output/water_vapor/frame*.png",
+    "options": {
+      "resizeW": "3600",
+      "range": " 0:6,0:6,0:6",
+      "fill": "99999.0",
+      "grad": "#111b26,#141e2a,#095cb9,#c2dfff",
       "dc": "#000000"
     }
   }

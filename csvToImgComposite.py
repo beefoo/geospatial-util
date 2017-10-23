@@ -76,6 +76,7 @@ im = None
 pixels = []
 
 for index, filename in enumerate(INPUT_FILES):
+    print "Processing %s" % filename
 
     rows = []
     with gzip.open(filename, 'rb') as f:
