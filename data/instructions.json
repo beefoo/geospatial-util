@@ -62,9 +62,7 @@
   },
   "water_vapor": {
     "in": [
-      "data/water_vapor_m/MYDAL2_M_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz",
-      "data/water_vapor_e/MYDAL2_E_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz",
-      "data/water_vapor_d/MYDAL2_D_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz"
+      "data/water_vapor_m/MYDAL2_M_SKY_WV_([0-9\\-]+)\\.FLOAT\\.csv\\.gz"
     ],
     "command": "csvToImgComposite.py",
     "out": "output/water_vapor/frame*.png",

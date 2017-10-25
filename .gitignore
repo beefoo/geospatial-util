@@ -10,3 +10,5 @@ output/*
 *.asc
 *.aux.xml
 *.prj
+*.grb2
+grib2json
